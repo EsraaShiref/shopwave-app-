@@ -1,0 +1,31 @@
+ currentIndex: number = 0;
+ 
+  constructor() {}
+ 
+  /**
+   * Display: Returns the current image URL
+   */
+  display(): string {
+    return this.images[this.currentIndex];
+  }
+ 
+  /**
+   * Stock: Returns the total number of images in the array
+   */
+  stock(): number {
+    return this.images.length;
+  }
+ 
+  /**
+   * Next: Moves to the next image with circular navigation
+   */
+  next(): void {
+    this.currentIndex = (this.currentIndex + 1) % this.stock();
+  }
+ 
+  /**
+   * Previous: Moves to the previous image with circular navigation
+   */
+  previous(): void {
+    this.currentIndex = (this.currentIndex - 1 + this.stock()) % this.stock();
+  }
