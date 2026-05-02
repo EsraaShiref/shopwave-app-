@@ -29,7 +29,7 @@ import { NgFor } from '@angular/common';
 export class Products {
   products: IProduct[];
   filteratedList: IProduct[] = [];
-  selectedCategory: string = '';                    // ← جديد
+  selectedCategory: string = '';                    
   categories: string[] = [];
   cart: IProduct[] = [];
   protected Math = Math;
