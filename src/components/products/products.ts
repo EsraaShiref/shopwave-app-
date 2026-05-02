@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IProduct } from '../../modles/iproduct';
+import { ZoomImgDirective } from '../../directives/zoom-img.directive';
 import {
   CurrencyPipe,
   DatePipe,
@@ -28,7 +29,8 @@ import { NgFor } from '@angular/common';
     SlicePipe,
     FormsModule,
     NgFor,
-    CommonModule
+    CommonModule,
+    ZoomImgDirective,
   ],
   templateUrl: './products.html',
   styleUrl: './products.css',

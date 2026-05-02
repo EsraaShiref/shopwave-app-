@@ -22,9 +22,9 @@
   transition: transform 0.35s ease;
 }
 
-.product-card:hover .product-img {
+/* .product-card:hover .product-img {
   transform: scale(1.06);
-}
+} */
 
 .category-label {
   font-size: 0.7rem;
