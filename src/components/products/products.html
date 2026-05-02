@@ -1,0 +1,179 @@
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <select class="form-select w-auto" [(ngModel)]="selectedCategory" (ngModelChange)="filterByCategory()">
+                <option value="">All Categories</option>
+                <option *ngFor="let cat of categories" [value]="cat">
+                    {{ cat }}
+                </option>
+            </select>
+        </div>
+        <!-- Products col -->
+        <div class="col-12" [ngClass]="cart.length > 0 ? 'col-lg-8' : 'col-12'">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
+                @for (product of filteratedList ; track product.id) {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 product-card">
+
+                        <span class="badge position-absolute top-0 start-0 m-2 z-1"
+                            [ngClass]="product.availabilityStatus === 'In Stock' ? 'bg-success' : 'bg-warning text-dark'">
+                            {{ product.availabilityStatus }}
+                        </span>
+
+                        <span class="badge bg-danger position-absolute top-0 end-0 m-2 z-1">
+                            -{{ product.discountPercentage | number:'1.0-0' }}%
+                        </span>
+
+                        <div class="product-img-wrapper">
+                            <img [src]="product.thumbnail" [alt]="product.title" class="card-img-top product-img" />
+                        </div>
+
+                        <div class="card-body d-flex flex-column gap-2">
+
+                            <span class="text-uppercase text-muted small fw-semibold category-label">
+                                {{ product.category }}
+                            </span>
+
+                            <h6 class="card-title fw-bold mb-0 product-title">{{ product.title }}</h6>
+
+                            @if (product.brand) {
+                            <p class="text-muted small mb-0">by {{ product.brand }}</p>
+                            }
+
+                            <p class="text-muted small product-description">
+                                {{ product.description.split(' ').slice(0,3).join(' ') + "..." }}
+                            </p>
+
+                            <div class="d-flex align-items-center gap-1">
+                                @for (star of [1,2,3,4,5]; track star) {
+                                <i class="bi fs-6"
+                                    [ngClass]="star <= Math.round(product.rating) ? 'bi-star-fill text-warning' : 'bi-star text-secondary'"></i>
+                                }
+                                <span class="text-muted small ms-1">({{ product.rating }})</span>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2 mt-auto">
+                                <span class="fs-5 fw-bold text-primary">${{ product.price | number:'1.2-2' }}</span>
+                                <span class="text-decoration-line-through text-muted small">
+                                    ${{ (product.price / (1 - product.discountPercentage / 100)) | number:'1.2-2' }}
+                                </span>
+                            </div>
+
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar"
+                                    [ngClass]="product.stock > 50 ? 'bg-success' : product.stock > 10 ? 'bg-warning' : 'bg-danger'"
+                                    [style.width.%]="(product.stock / 100) * 100"></div>
+                            </div>
+                            <p class="text-muted small mb-0">{{ product.stock - product.Quantity }} in stock</p>
+
+                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                <span class="small fw-semibold text-muted">Quantity:</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button class="btn btn-outline-secondary btn-sm qty-btn"
+                                        (click)="product.Quantity = product.Quantity > 1 ? product.Quantity - 1 : 0">
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <span class="fw-bold qty-display">{{ product.Quantity }}</span>
+                                    <button class="btn btn-outline-secondary btn-sm qty-btn"
+                                        (click)="product.Quantity = product.Quantity < product.stock ? product.Quantity + 1 : product.stock">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
+                            <button class="btn btn-primary w-100 fw-semibold add-to-cart-btn"
+                            [disabled]="product.Quantity === 0 || product.Quantity > product.stock"
+                            (click)="addToCart(product)">
+                                <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                }
+            </div>
+        </div><!--/Products col-->
+
+
+        @if (cart.length > 0) {
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm border-0 cart-card sticky-top" style="top: 20px;">
+
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-cart3 me-2"></i>My Cart
+                    </h5>
+                    <span class="badge bg-white text-primary fw-bold">{{ getTotalItems() }} items</span>
+                </div>
+
+                <div class="card-body cart-body p-0">
+                    @for (item of cart; track item.id) {
+                    <div class="cart-item d-flex align-items-center gap-3 p-3 border-bottom">
+
+                        <img [src]="item.thumbnail" [alt]="item.title" class="cart-item-img rounded" />
+
+                        <div class="flex-grow-1 overflow-hidden">
+                            <p class="fw-semibold mb-0 text-truncate small">{{ item.title }}</p>
+                            <span class="text-primary fw-bold small">${{ item.price | number:'1.2-2' }}</span>
+                        </div>
+
+                        <div class="d-flex flex-column align-items-center gap-1">
+                            <div class="d-flex align-items-center gap-1">
+                                <button class="btn btn-outline-secondary btn-sm qty-btn"
+                                    (click)="decreaseCartItem(item)">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <span class="fw-bold small qty-display">{{ item.Quantity }}</span>
+                                <button class="btn btn-outline-secondary btn-sm qty-btn"
+                                    (click)="increaseCartItem(item)">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                            <button class="btn btn-link text-danger btn-sm p-0"
+                                (click)="removeFromCart(item)">
+                                <i class="bi bi-trash3 me-1"></i>Remove
+                            </button>
+                        </div>
+
+                    </div>
+                    }
+                </div>
+
+                <div class="card-footer bg-white border-0 p-3">
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Subtotal</span>
+                        <span class="fw-semibold small">${{getSubtotal() | number:'1.2-2'}}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Discount</span>
+                        <span class="fw-semibold small text-danger">${{getDiscount() | number:'1.2-2'}}</span>
+                    </div>
+
+                    <hr class="my-2" />
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="fw-bold">Total</span>
+                        <span class="fw-bold text-primary fs-5">${{getTotal() | number:'1.2-2'}}</span>
+                    </div>
+
+                    <button class="btn btn-success w-100 fw-semibold">
+                        <i class="bi bi-bag-check me-2"></i>Checkout
+                    </button>
+
+                    <button class="btn btn-outline-danger w-100 fw-semibold mt-2"
+                        (click)="clearCart()">
+                        <i class="bi bi-trash me-2"></i>Clear Cart
+                    </button>
+
+                </div>
+            </div>
+        </div>
+        }
+
+    </div>
+</div>
