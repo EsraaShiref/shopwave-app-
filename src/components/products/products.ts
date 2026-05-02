@@ -2,20 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IProduct } from '../../modles/iproduct';
 import { ZoomImgDirective } from '../../directives/zoom-img.directive';
-import {
-  CurrencyPipe,
-  DatePipe,
-  DecimalPipe,
-  JsonPipe,
-  KeyValuePipe,
-  LowerCasePipe,
-  NgClass,
-  NgStyle,
-  SlicePipe,
-  TitleCasePipe,
-  UpperCasePipe,
-  DecimalPipe as NumberPipe
-} from '@angular/common';
+import { DarkModeDirective } from '../../directives/dark-mode.directive';
+import { DarkModeService } from '../../services/dark-mode.service';
+import { NgClass, SlicePipe, DecimalPipe as NumberPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgFor } from '@angular/common';
 
@@ -31,6 +20,8 @@ import { NgFor } from '@angular/common';
     NgFor,
     CommonModule,
     ZoomImgDirective,
+    ZoomImgDirective,
+    DarkModeDirective,
   ],
   templateUrl: './products.html',
   styleUrl: './products.css',
@@ -42,7 +33,14 @@ export class Products {
   categories: string[] = [];
   cart: IProduct[] = [];
   protected Math = Math;
-  constructor() {
+  constructor(private darkModeService: DarkModeService) {
+    this.darkModeService.isDark$.subscribe(isDark => {
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    });
     this.products =
       [
         {
@@ -1962,5 +1960,14 @@ export class Products {
 
   getTotal(): number {
     return this.cart.reduce((sum, item) => sum + item.price * item.Quantity, 0);
+  }
+
+
+  toggleDarkMode(): void {
+    this.darkModeService.toggle();
+  }
+
+  get isDark(): boolean {
+    return this.darkModeService.isDark;
   }
 }
