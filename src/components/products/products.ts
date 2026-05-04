@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component ,ViewChild} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IProduct } from '../../modles/iproduct';
 import { ZoomImgDirective } from '../../directives/zoom-img.directive';
@@ -7,7 +7,8 @@ import { DarkModeService } from '../../services/dark-mode.service';
 import { NgClass, SlicePipe, DecimalPipe as NumberPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgFor } from '@angular/common';
-
+import { BtnComponent } from '../btn/btn';
+import { ProductListComponent } from '../product-list/product-list';
 
 
 @Component({
@@ -20,8 +21,9 @@ import { NgFor } from '@angular/common';
     NgFor,
     CommonModule,
     ZoomImgDirective,
-    ZoomImgDirective,
     DarkModeDirective,
+    BtnComponent,         
+    ProductListComponent, 
   ],
   templateUrl: './products.html',
   styleUrl: './products.css',
@@ -29,10 +31,15 @@ import { NgFor } from '@angular/common';
 export class Products {
   products: IProduct[];
   filteratedList: IProduct[] = [];
-  selectedCategory: string = '';                    
+  selectedCategory: string = '';
   categories: string[] = [];
   cart: IProduct[] = [];
   protected Math = Math;
+  @ViewChild(ProductListComponent) productListChild!: ProductListComponent;
+  resetFilter = (): void => {
+  this.selectedCategory = '';
+  this.filteratedList = this.products;
+}
   constructor(private darkModeService: DarkModeService) {
     this.darkModeService.isDark$.subscribe(isDark => {
       if (isDark) {
@@ -1970,4 +1977,8 @@ export class Products {
   get isDark(): boolean {
     return this.darkModeService.isDark;
   }
+
+  getTotalPrice(): number {
+  return this.filteratedList.reduce((sum, p) => sum + p.price, 0);
+}
 }
