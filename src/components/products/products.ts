@@ -14,8 +14,8 @@ import { ProductDataService } from '../../services/product-data.service';
   standalone: true,
   imports: [
     NgClass, NumberPipe, FormsModule, NgFor, CommonModule,
-    ZoomImgDirective, BtnComponent, ProductListComponent,
-  ],
+    BtnComponent, ProductListComponent
+],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
