@@ -1,0 +1,40 @@
+<!-- No Header or Footer — this is a standalone auth page -->
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow-sm border-0 rounded-4 p-4" style="width: 100%; max-width: 420px;">
+
+    <div class="text-center mb-4">
+      <h2 class="fw-bold text-primary">ShopWave</h2>
+      <p class="text-muted">Sign in to your account</p>
+    </div>
+
+    @if (errorMsg) {
+      <div class="alert alert-danger py-2 small">{{ errorMsg }}</div>
+    }
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Email address</label>
+      <input type="email" class="form-control" placeholder="you@example.com"
+             [(ngModel)]="email" name="email" />
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Password</label>
+      <input type="password" class="form-control" placeholder="••••••••"
+             [(ngModel)]="password" name="password" />
+    </div>
+
+    <button class="btn btn-primary w-100 fw-semibold py-2"
+            (click)="login()" [disabled]="loading">
+      @if (loading) {
+        <span class="spinner-border spinner-border-sm me-2"></span>
+      }
+      Sign In
+    </button>
+
+    <p class="text-center text-muted small mt-3 mb-0">
+      Don't have an account?
+      <a routerLink="/signup" class="text-primary fw-semibold">Sign Up</a>
+    </p>
+
+  </div>
+</div>

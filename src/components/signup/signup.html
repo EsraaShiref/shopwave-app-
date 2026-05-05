@@ -1,0 +1,55 @@
+<!-- No Header or Footer — standalone auth page -->
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow-sm border-0 rounded-4 p-4" style="width: 100%; max-width: 440px;">
+
+    <div class="text-center mb-4">
+      <h2 class="fw-bold text-primary">ShopWave</h2>
+      <p class="text-muted">Create your account</p>
+    </div>
+
+    @if (errorMsg) {
+      <div class="alert alert-danger py-2 small">{{ errorMsg }}</div>
+    }
+    @if (successMsg) {
+      <div class="alert alert-success py-2 small">{{ successMsg }}</div>
+    }
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Full Name</label>
+      <input type="text" class="form-control" placeholder="Your name"
+             [(ngModel)]="name" name="name" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Email address</label>
+      <input type="email" class="form-control" placeholder="you@example.com"
+             [(ngModel)]="email" name="email" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Password</label>
+      <input type="password" class="form-control" placeholder="Min 6 characters"
+             [(ngModel)]="password" name="password" />
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Confirm Password</label>
+      <input type="password" class="form-control" placeholder="Repeat password"
+             [(ngModel)]="confirmPassword" name="confirmPassword" />
+    </div>
+
+    <button class="btn btn-success w-100 fw-semibold py-2"
+            (click)="signup()" [disabled]="loading">
+      @if (loading) {
+        <span class="spinner-border spinner-border-sm me-2"></span>
+      }
+      Create Account
+    </button>
+
+    <p class="text-center text-muted small mt-3 mb-0">
+      Already have an account?
+      <a routerLink="/login" class="text-primary fw-semibold">Sign In</a>
+    </p>
+
+  </div>
+</div>

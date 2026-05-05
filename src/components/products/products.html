@@ -1,9 +1,8 @@
 <div class="container-fluid py-4">
   <div class="row g-4">
 
-    <!-- ── Filter + Dark Mode row ── -->
+    <!-- ── Filter row ── -->
     <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
-
       <div class="d-flex align-items-center gap-2">
         <select class="form-select w-auto"
                 [(ngModel)]="selectedCategory"
@@ -11,47 +10,119 @@
           <option value="">All Categories</option>
           <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
         </select>
-
-        <app-btn
-          title="Reset Filter"
-          width="130px"
-          height="38px"
-          color="#6c757d"
-          [action]="resetFilter">
+        <app-btn title="Reset Filter" width="130px" height="38px"
+                 color="#6c757d" [action]="resetFilter">
         </app-btn>
       </div>
-
-      <button class="btn btn-outline-secondary rounded-circle p-2"
-              (click)="toggleDarkMode()"
-              [title]="isDark ? 'Light Mode' : 'Dark Mode'">
-        <i class="bi fs-5"
-           [ngClass]="isDark ? 'bi-sun-fill text-warning' : 'bi-moon-fill'"></i>
-      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success btn-sm fw-semibold" (click)="openAddForm()">
+          <i class="bi bi-plus-lg me-1"></i>Add Product
+        </button>
+        <button class="btn btn-outline-secondary rounded-circle p-2"
+                (click)="toggleDarkMode()"
+                [title]="isDark ? 'Light Mode' : 'Dark Mode'">
+          <i class="bi fs-5"
+             [ngClass]="isDark ? 'bi-sun-fill text-warning' : 'bi-moon-fill'"></i>
+        </button>
+      </div>
     </div>
+
+    <!-- ── CRUD Form ── -->
+    @if (showForm) {
+    <div class="col-12">
+      <div class="card border-primary border-0 shadow rounded-4 p-4">
+        <h5 class="fw-bold mb-3">
+          <i class="bi me-2"
+             [ngClass]="isEditing ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+          {{ isEditing ? 'Edit Product' : 'Add New Product' }}
+        </h5>
+
+        <form #productForm="ngForm" (ngSubmit)="submitForm(productForm)">
+          <div class="row g-3">
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Title *</label>
+              <input class="form-control" name="title" required
+                     [(ngModel)]="formProduct.title" #titleField="ngModel" />
+              @if (titleField.invalid && titleField.touched) {
+                <div class="text-danger small">Title is required.</div>
+              }
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Category *</label>
+              <input class="form-control" name="category" required
+                     [(ngModel)]="formProduct.category" #categoryField="ngModel" />
+              @if (categoryField.invalid && categoryField.touched) {
+                <div class="text-danger small">Category is required.</div>
+              }
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Price *</label>
+              <input type="number" class="form-control" name="price"
+                     required min="0" [(ngModel)]="formProduct.price" />
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Stock *</label>
+              <input type="number" class="form-control" name="stock"
+                     required min="0" [(ngModel)]="formProduct.stock" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Brand</label>
+              <input class="form-control" name="brand"
+                     [(ngModel)]="formProduct.brand" />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Thumbnail URL</label>
+              <input class="form-control" name="thumbnail"
+                     [(ngModel)]="formProduct.thumbnail" />
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label fw-semibold">Discount %</label>
+              <input type="number" class="form-control" name="discountPercentage"
+                     [(ngModel)]="formProduct.discountPercentage" />
+            </div>
+
+            <div class="col-12 d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-outline-secondary"
+                      (click)="cancelForm(productForm)">Cancel</button>
+              <button type="submit" class="btn btn-primary fw-semibold"
+                      [disabled]="productForm.invalid">
+                {{ isEditing ? 'Update Product' : 'Save Product' }}
+              </button>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+    }
 
     <!-- ── Products col ── -->
     <div class="col-12" [ngClass]="cart.length > 0 ? 'col-lg-8' : 'col-12'">
 
       <!--
-        FIX 1: (addToCartEvent) wires the child's @Output back to the parent's
-                addToCart(). Previously the child had its own isolated cart that
-                the sidebar in this template could never see.
+        FIX: The duplicate CRUD card @for loop that was below app-product-list
+        has been removed. Products now render ONCE inside product-list.html.
 
-        FIX 2: The dead "Slot 2" card block that was projected here but never
-                rendered (no default <ng-content> in product-list.html) is removed.
-                product-list.html owns and renders the cards via its own @for loop.
+        Edit/Delete buttons were moved into product-list.html's card footer and
+        communicate back to this parent via @Output events:
+          (editProductEvent)   → openEditForm()
+          (deleteProductEvent) → deleteProduct()
+          (addToCartEvent)     → addToCart()
       -->
       <app-product-list
         [products]="filteratedList"
         [totalPrice]="getTotalPrice()"
-        (addToCartEvent)="addToCart($event)">
+        (addToCartEvent)="addToCart($event)"
+        (editProductEvent)="openEditForm($event)"
+        (deleteProductEvent)="deleteProduct($event)">
 
-        <!--
-          FIX 3: Added BOTH the `customHeader` attribute (for ng-content projection)
-                 AND `#customHeader` template ref (for @ContentChild('customHeader')).
-                 Previously only the attribute was present, so @ContentChild never
-                 resolved and ngAfterContentInit logged nothing.
-        -->
         <div customHeader #customHeader class="alert alert-info py-2 mb-3">
           <i class="bi bi-info-circle me-2"></i>
           <strong>Showing:</strong> {{ selectedCategory || 'All Categories' }} —
@@ -68,30 +139,25 @@
       <div class="card shadow-sm border-0 cart-card sticky-top" style="top: 20px;">
 
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-          <h5 class="mb-0 fw-bold">
-            <i class="bi bi-cart3 me-2"></i>My Cart
-          </h5>
+          <h5 class="mb-0 fw-bold"><i class="bi bi-cart3 me-2"></i>My Cart</h5>
           <span class="badge bg-white text-primary fw-bold">{{ getTotalItems() }} items</span>
         </div>
 
         <div class="card-body cart-body p-0">
           @for (item of cart; track item.id) {
           <div class="cart-item d-flex align-items-center gap-3 p-3 border-bottom">
-
             <img [src]="item.thumbnail" [alt]="item.title" class="cart-item-img rounded" />
-
             <div class="flex-grow-1 overflow-hidden">
               <p class="fw-semibold mb-0 text-truncate small">{{ item.title }}</p>
               <span class="text-primary fw-bold small">${{ item.price | number:'1.2-2' }}</span>
             </div>
-
             <div class="d-flex flex-column align-items-center gap-1">
               <div class="d-flex align-items-center gap-1">
                 <button class="btn btn-outline-secondary btn-sm qty-btn"
                         (click)="decreaseCartItem(item)">
                   <i class="bi bi-dash"></i>
                 </button>
-                <span class="fw-bold small qty-display">{{ item.Quantity }}</span>
+                <span class="fw-bold small">{{ item.Quantity }}</span>
                 <button class="btn btn-outline-secondary btn-sm qty-btn"
                         (click)="increaseCartItem(item)">
                   <i class="bi bi-plus"></i>
@@ -102,7 +168,6 @@
                 <i class="bi bi-trash3 me-1"></i>Remove
               </button>
             </div>
-
           </div>
           }
         </div>
@@ -116,14 +181,11 @@
             <span class="text-muted small">Discount</span>
             <span class="fw-semibold small text-danger">${{ getDiscount() | number:'1.2-2' }}</span>
           </div>
-
           <hr class="my-2" />
-
           <div class="d-flex justify-content-between mb-3">
             <span class="fw-bold">Total</span>
             <span class="fw-bold text-primary fs-5">${{ getTotal() | number:'1.2-2' }}</span>
           </div>
-
           <button class="btn btn-success w-100 fw-semibold">
             <i class="bi bi-bag-check me-2"></i>Checkout
           </button>
