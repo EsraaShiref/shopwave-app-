@@ -12,6 +12,5 @@
       "email": "admin@shopwave.com",
       "password": "admin123"
     }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+  ]
 }
